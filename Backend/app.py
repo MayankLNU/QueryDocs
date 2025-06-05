@@ -1,9 +1,13 @@
+import os
+import queryDocs
+import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from PyPDF2 import PdfReader
+
 
 app = Flask(__name__)
 CORS(app)
+
 
 @app.route("/upload", methods=["Post"])
 def upload_file():
@@ -11,16 +15,28 @@ def upload_file():
         return jsonify({"message": "No file uploaded."}), 400
     
     file = request.files["file"]
+    file_extension = os.path.splitext(file.filename)[1].lower()
 
-
-    reader = PdfReader(file)
-    text = "\n".join([page.extract_text() for page in reader.pages])
-    print(text)
-
-    if not file:
-        return jsonify({"message": "No file uploaded."}), 400
+    if not file.filename:
+        return jsonify({"message": "No file selected for upload."}), 400
     
-    return jsonify({"message": f"File {file.filename} uploaded successfully!"}), 200
+    if file_extension != '.pdf' and file_extension != '.docx':
+        return jsonify({"message": "Only .pdf or .docx allowed."}), 400
+
+    extracted_text = queryDocs.extract_text_and_file_extension(file, file_extension)
+
+    if not extracted_text.strip():
+        return jsonify({"message": "Could not extract text from the document. It might be empty, corrupted, or contain no extractable text."}), 400
+    
+    try:
+        rag_process_result = queryDocs.process_document_for_rag(file.filename, file_extension, extracted_text)
+        if rag_process_result:
+            return jsonify({"message": f"File {file.filename} uploaded successfully!"}), 200
+        return jsonify({"message": "Something went wrong."}), 400
+    
+    except Exception as e:
+        logging.error("Server error during rag processing", exc_info=True)
+        return jsonify({"message": f"Internal server error: {e}"}), 500
 
 
 
@@ -31,5 +47,11 @@ def process_prompt():
 
     if not prompt:
         return jsonify({"message": "Prompt cannot be empty. Please provide a valid prompt."}), 400
-    print(prompt)
-    return jsonify({"message": f"Received prompt: {prompt}"}), 200
+    
+    try:
+        answer = queryDocs.answer_question_from_docs(prompt)
+        return jsonify({"message": "Answer generated successfully!", "answer": answer}), 200
+    
+    except Exception as e:
+        logging.error("Server error during prompt processing", exc_info=True)
+        return jsonify({"message": f"Internal server error: {e}"}), 500

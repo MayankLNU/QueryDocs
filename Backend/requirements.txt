@@ -1,4 +1,11 @@
 flask
-flask-smorest
-python-dotenv
 flask-cors
+python-dotenv
+PyPDF2
+python-docx
+openai
+langchain
+langchain-openai
+langchain-community
+azure-search-documents
+azure-identity
