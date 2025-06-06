@@ -7,6 +7,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import AzureOpenAIEmbeddings
 from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_core.documents import Document
+from azure.search.documents import SearchClient
+from azure.core.credentials import AzureKeyCredential
+from azure.core.exceptions import HttpResponseError
 
 
 load_dotenv()
@@ -51,6 +54,13 @@ vector_store = AzureSearch(
 )
 
 
+client = SearchClient(
+            endpoint=AZURE_SEARCH_ENDPOINT,
+            index_name=AZURE_SEARCH_INDEX_NAME,
+            credential=AzureKeyCredential(AZURE_SEARCH_ADMIN_KEY)
+        )
+
+
 def extract_text_and_file_extension(file, file_extension):
     
     if file_extension == '.pdf':
@@ -62,31 +72,68 @@ def extract_text_and_file_extension(file, file_extension):
         return "\n".join([para.text for para in doc.paragraphs]).strip()
 
 
+def delete_all_documents():
+    try:
+        # Retrieve all documents
+        results = client.search("")  # Empty query retrieves all documents
+
+        # Log retrieved documents for debugging
+        print("Retrieved documents:")
+        for doc in results:
+            print(doc)
+
+        # Check for the correct key field in the documents
+        documents_to_delete = []
+        for doc in results:
+            # Replace "id" with your actual key field name if different
+            document_key = doc.get("id") or doc.get("@search.documentkey")
+            if document_key:
+                documents_to_delete.append({"@search.action": "delete", "id": document_key})
+
+        if documents_to_delete:
+            # Delete documents
+            client.upload_documents(documents=documents_to_delete)
+            print("All documents deleted successfully.")
+        else:
+            print("No documents to delete or no valid keys found.")
+    except Exception as e:
+        print(f"An error occurred while deleting documents: {e}")
+
+
 def process_document_for_rag(filename, file_extension, extracted_text):
- 
-    # Chunk the extracted text
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=150,
-        separators=["\n\n", "\n", " ", ""]
-    )
-    chunks = text_splitter.split_text(extracted_text)
- 
-    # Prepare documents for vector store with metadata
-    docs_to_index = [
-        Document(
-            page_content=chunk,
-            metadata={
-                "source": filename,
-                "chunk_id": i,
-                "file_type": file_extension
-            }
-        ) for i, chunk in enumerate(chunks)
-    ]
- 
-    # Add documents to Azure AI Search (generates embeddings internally)
-    vector_store.add_documents(docs_to_index)
-    return True
+    try:
+        # Chunk the extracted text
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=150,
+            separators=["\n\n", "\n", " ", ""]
+        )
+        chunks = text_splitter.split_text(extracted_text)
+
+        # Prepare documents for vector store with metadata
+        docs_to_index = [
+            Document(
+                page_content=chunk,
+                metadata={
+                    "source": filename,
+                    "chunk_id": i,
+                    "file_type": file_extension
+                }
+            ) for i, chunk in enumerate(chunks)
+        ]
+
+        # Add documents to Azure AI Search
+        vector_store.add_documents(docs_to_index)
+        return True
+
+    except HttpResponseError as e:
+        if "Storage quota has been exceeded" in str(e):
+            raise ValueError("Storage quota exceeded. Please delete documents or upgrade your Azure Search SKU.")
+        else:
+            raise
+
+    except Exception as e:
+        raise RuntimeError(f"An unexpected error occurred during RAG processing: {str(e)}")
 
 
 def answer_question_from_docs(question):

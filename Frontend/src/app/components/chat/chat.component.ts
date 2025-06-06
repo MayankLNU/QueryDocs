@@ -1,32 +1,39 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FileUploadService } from '../../services/file-upload.service';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 @Component({
-  selector: 'app-chat',
+  selector: 'app-chatbox',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
 export class ChatComponent {
-  userInput = '';
-  messages: { sender: string, text: string }[] = [];
+  userInput: string = '';
+  messages: { sender: 'user' | 'bot', text: string }[] = [];
+  selectedFile: File | null = null;
 
-  constructor(private router: Router, private fileService: FileUploadService) {}
+  constructor(private http: HttpClient) {}
 
   sendMessage() {
-    if (this.userInput.trim()) {
-      this.messages.push({ sender: 'user', text: this.userInput });
-      this.messages.push({ sender: 'bot', text: 'Processing your question...' });
-      this.userInput = '';
-    }
-  }
+    if (!this.userInput.trim()) return;
 
-  endChat() {
-    this.fileService.clearFile();
-    this.router.navigate(['/']);
+    const prompt = this.userInput.trim();
+    this.messages.push({ sender: 'user', text: prompt });
+
+    this.http.post<{ answer: string, message: string }>('http://127.0.0.1:5000/prompt', { prompt })
+      .subscribe({
+        next: (res) => {
+          this.messages.push({ sender: 'bot', text: res.answer });
+        },
+        error: (err) => {
+          this.messages.push({ sender: 'bot', text: 'Error: Could not get response.' });
+          console.error(err);
+        }
+      });
+
+    this.userInput = '';
   }
 }

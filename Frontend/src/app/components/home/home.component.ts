@@ -64,6 +64,13 @@ export class HomeComponent {
         },
         complete: () => {
           this.loading = false;
+        
+          // Reset the file input and related variables
+          const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+          if (fileInput) {
+            fileInput.value = ''; // Clear the file input
+          }
+          this.fileName = ''; // Reset the fileName variable
         }
       });
     } else {

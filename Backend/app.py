@@ -28,6 +28,8 @@ def upload_file():
     if not extracted_text.strip():
         return jsonify({"message": "Could not extract text from the document. It might be empty, corrupted, or contain no extractable text."}), 400
     
+    queryDocs.delete_all_documents()
+
     try:
         rag_process_result = queryDocs.process_document_for_rag(file.filename, file_extension, extracted_text)
         if rag_process_result:
