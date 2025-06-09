@@ -77,11 +77,6 @@ def delete_all_documents():
         # Retrieve all documents
         results = client.search("")  # Empty query retrieves all documents
 
-        # Log retrieved documents for debugging
-        print("Retrieved documents:")
-        for doc in results:
-            print(doc)
-
         # Check for the correct key field in the documents
         documents_to_delete = []
         for doc in results:
@@ -90,6 +85,7 @@ def delete_all_documents():
             if document_key:
                 documents_to_delete.append({"@search.action": "delete", "id": document_key})
 
+        print(documents_to_delete)
         if documents_to_delete:
             # Delete documents
             client.upload_documents(documents=documents_to_delete)
