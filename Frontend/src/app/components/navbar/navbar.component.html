@@ -1,1 +1,44 @@
-<p>navbar works!</p>
+<div class="navbar navbar-dark bg-dark box-shadow">
+  <div class="container d-flex justify-content-between">
+    <a href="#" class="navbar-brand d-flex align-items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2" viewBox="0 0 24 24">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      <strong>QueryDocs</strong>
+    </a>
+    <button 
+      class="navbar-toggler collapsed" 
+      type="button" 
+      data-bs-toggle="collapse" 
+      data-bs-target="#navbarHeader" 
+      aria-controls="navbarHeader" 
+      aria-expanded="false" 
+      aria-label="Toggle navigation"
+      (click)="toggleNavbar()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </div>
+</div>
+
+<div class="collapse bg-dark" id="navbarHeader">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 col-md-7 py-4">
+        <h4 class="text-white">Enjoying Query Docs!😊</h4>
+        <!-- Navigation Links -->
+         
+        <p>
+          <a href="#"> Add new file </a>
+          </p>
+        <p class="float-right">
+          <a href="/prompt">Back to chat</a>
+         </p>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+

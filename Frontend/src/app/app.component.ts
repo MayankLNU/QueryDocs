@@ -1,18 +1,22 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from './components/navbar/navbar.component';
-import { FooterComponent } from './components/footer/footer.component';
+import { FormsModule } from '@angular/forms'; 
+import { NavbarComponent } from './Components/navbar/navbar.component';
+import { FooterComponent } from './Components/footer/footer.component';
+import { InputFileComponent } from './Components/input-file/input-file.component';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
-  template: `
-    <app-navbar></app-navbar>
-  <main class="flex-grow-1">
-  <router-outlet></router-outlet>
-  </main>
-  <app-footer></app-footer>
-  `
+  standalone: true, 
+  imports: [
+    RouterOutlet,
+    FormsModule, 
+    NavbarComponent,
+    FooterComponent
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'] 
 })
-export class AppComponent {}
+export class AppComponent {
+  title = 'QueryDocs';
+}

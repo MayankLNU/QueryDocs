@@ -1,0 +1,17 @@
+<div class="chat-history-sidebar" *ngIf="showSidebar">
+  <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+    <h5 class="mb-0">Chat History</h5>
+    <button class="btn btn-sm btn-outline-secondary" (click)="hideSidebar()">Hide</button>
+  </div>
+
+  <button class="btn btn-sm btn-primary m-2 w-100" (click)="startNewChat()">+ New Chat</button>
+
+  <ul class="list-group list-group-flush">
+    <li 
+      *ngFor="let session of chatHistory; let i = index" 
+      class="list-group-item list-group-item-action"
+      (click)="selectChat(i)">
+      {{ session.title || session.messages[0]?.text || 'Untitled Chat' }}
+    </li>
+  </ul>
+</div>

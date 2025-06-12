@@ -1,9 +1,6 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
-import { ChatComponent } from './components/chat/chat.component';
-import { ChatGuard } from './guards/chat.guard';
+import { InputFileComponent } from './Components/input-file/input-file.component';
+import { PromptComponent } from './Components/prompt/prompt.component';
 
-export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'chat', component: ChatComponent, canActivate: [ChatGuard] }
-];
+export const routes: Routes = [ { path: '', component: InputFileComponent },
+    { path: 'prompt', component: PromptComponent }];
