@@ -26,7 +26,7 @@
       <div *ngFor="let chat of currentSession.messages" 
            [ngClass]="{'user-message': chat.role === 'user', 'bot-message': chat.role === 'bot'}">
         <div class="message-bubble">
-          <div class="message-text">{{ chat.text }}</div>
+          <pre class="message-text m-0" style="white-space: pre-wrap;">{{ chat.text }}</pre>
           <div class="message-time text-muted small">{{ chat.timestamp | date:'shortTime' }}</div>
         </div>
       </div>

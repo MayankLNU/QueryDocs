@@ -2,7 +2,7 @@
 .chat-container {
   display: flex;
   flex-direction: row;
-  height: 91.2vh;
+  height: 92.6vh;
   overflow: hidden;
   position: relative;
 }
@@ -36,7 +36,7 @@
   flex-grow: 1;
   overflow-y: auto;
   background-color: #1e293b;
-  border: 1px solid #334155;
+  border: 1px solid #1e293b;
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 10px;
@@ -167,14 +167,15 @@ button.btn-gradient:focus {
   box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
 }
 
-/* Toggle Button */
+/* Styling for the Show History/Hide History button */
 button.show-history {
   position: absolute;
-  top: 10px;
+  top: 30px;
+  left: 20px;
   background-color: #2563eb;
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 6px 12px;
   font-size: 0.85rem;
   cursor: pointer;

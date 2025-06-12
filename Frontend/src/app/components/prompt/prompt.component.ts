@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ChatHistoryComponent } from '../chat-history/chat-history.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { ChatHistoryComponent } from '../chat-history/chat-history.component';
 
 @Component({
   selector: 'app-prompt',
@@ -59,6 +59,11 @@ export class PromptComponent implements OnInit, AfterViewChecked {
         timestamp: new Date()
       });
 
+      // Set the chat title based on the first user message
+      if (!this.currentSession.title) {
+        this.currentSession.title = prompt.split(' ').slice(0, 5).join(' ') + '...'; // First few words
+      }
+
       this.userPrompt = '';
       this.shouldScroll = true;
 
@@ -67,7 +72,7 @@ export class PromptComponent implements OnInit, AfterViewChecked {
           if (response && response.answer) {
             this.currentSession.messages.push({
               role: 'bot',
-              text: response.answer,
+              text: response.answer.replace(/\\n/g, '\n'),
               timestamp: new Date()
             });
             this.shouldScroll = true;
@@ -86,7 +91,7 @@ export class PromptComponent implements OnInit, AfterViewChecked {
 
   startNewChat(): void {
     this.currentSession = {
-      title: 'New Chat',
+      title: '',
       messages: []
     };
     this.chatHistory.push(this.currentSession);
@@ -108,8 +113,6 @@ export class PromptComponent implements OnInit, AfterViewChecked {
     }
 
     this.currentSession = this.chatHistory[index];
-    const lastBotMessage = this.currentSession.messages.findLast((m: any) => m.role === 'bot');
-    this.response = lastBotMessage?.text || '';
   }
 
   ngAfterViewChecked(): void {
